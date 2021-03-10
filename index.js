@@ -191,6 +191,10 @@ function getJenkinsClassname (test, options) {
   return titles.join(options.suiteTitleSeparatedBy);
 }
 
+function indent() {
+  return "    ";
+}
+
 /**
  * JUnit reporter for mocha.js.
  * @module mocha-junit-reporter
@@ -252,15 +256,27 @@ function MochaJUnitReporter(runner, options) {
   }.bind(this));
 
   this._runner.on('pass', function(test) {
+    var fmt = indent()
+      + color('checkmark', '  '+Base.symbols.ok)
+      + color('pass', ' %s: ')
+      + color(test.speed, '%dms');
+    console.log(fmt, test.title, test.duration);
     lastSuite().push(this.getTestcaseData(test));
   }.bind(this));
 
   this._runner.on('fail', function(test, err) {
+    var fmt = indent()
+      + color('fail', '  %d) %s');
+    console.log(fmt, test.title);
     lastSuite().push(this.getTestcaseData(test, err));
   }.bind(this));
 
   if (this._options.includePending) {
     this._runner.on('pending', function(test) {
+      var fmt = indent()
+        + color('checkmark', '  -')
+        + color('pending', ' %s');
+      console.log(fmt, test.title);
       var testcase = this.getTestcaseData(test);
 
       testcase.testcase.push({ skipped: null });
